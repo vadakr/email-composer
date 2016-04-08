@@ -31,6 +31,12 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.LOG;
 
+import android.util.Log;
+import android.os.Environment;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 public class EmailComposer extends CordovaPlugin {
 
 	@Override
@@ -172,15 +178,15 @@ public class EmailComposer extends CordovaPlugin {
 					String filename = fileInformation.getString(0);
 					String filedata = fileInformation.getString(1);
 					
-					byte[] fileBytes = Base64.decode(filedata, 0);
-					File filePath = new File(this.cordova.getActivity().getCacheDir() + "/" + filename);
-					FileOutputStream os = new FileOutputStream(filePath, false);
-					os.write(fileBytes);
-					os.flush();
-					os.close();
+					boolean useContentProvider = true;
+                    try {
+                        useContentProvider = !parameters.getBoolean("dontUseContentProviderOnAndroid");
+                    } catch (Exception e) {
+                        Log.e("EmailComposer", "Error handling 'dontUseContentProviderOnAndroid' param: " + e.toString());
+                    }
+
+                    Uri uri = getUri(filename, filedata, Boolean.valueOf(useContentProvider));
 					
-					// Uri uri = Uri.fromFile(filePath);
-					Uri uri = Uri.parse("content://" + EmailAttachmentProvider.AUTHORITY + "/" + filename);
 					uris.add(uri);
 				}
 				if (uris.size() > 0) {
@@ -194,6 +200,76 @@ public class EmailComposer extends CordovaPlugin {
 		this.cordova.startActivityForResult(this, emailIntent, 0);
 	}
 	
+	private Uri getUri(String filename, String filedata, Boolean useContentProvider) throws FileNotFoundException, IOException{
+        if(!useContentProvider){
+            //some email clients (LG's mail app for eg. choke when they need to use a content provider
+            //in such cases, we can use the filesystem to transfer data
+
+            // check if external storage can be written to
+            boolean canWriteToExternalStorage = false;
+            if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
+                canWriteToExternalStorage = true;
+
+            if(!canWriteToExternalStorage){
+                Log.d("EmailComposer", "External storage is not writeable, using content provider");
+                return getContentProviderUri(filename, filedata);
+            }
+            else{
+                Log.d("EmailComposer", "External storage is writeable");
+                return getFileUri(filename, filedata);
+            }
+
+        }
+        else{
+            return getContentProviderUri(filename, filedata);
+        }
+    }
+
+	private Uri getFileUri(String filename, String filedata) throws FileNotFoundException, IOException{
+	    String folderName = "EcoSys_Mobile";
+
+	    File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+	                              folderName);
+
+        //clean up a file if one of the same name exists, and create a folder instead
+        if(filePath.exists() && !filePath.isDirectory()){
+            filePath.delete();
+            filePath.mkdir();
+        }
+
+
+        if (filePath.exists()) {
+            filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) +
+                                  "/" + folderName, filename);
+
+            byte[] fileBytes = Base64.decode(filedata, 0);
+
+            FileOutputStream os = new FileOutputStream(filePath, false);
+            os.write(fileBytes);
+            os.flush();
+            os.close();
+
+            return Uri.fromFile(filePath);
+        }
+        else{
+            Log.e("EmailComposer", "Could not create the directory " + folderName + " on external storage/Downloads");
+            throw new RuntimeException("Could not create the directory " + folderName + " on external storage/Downloads");
+        }
+	}
+
+	private Uri getContentProviderUri(String filename, String filedata) throws FileNotFoundException, IOException{
+        File filePath = new File(this.cordova.getActivity().getCacheDir() + "/" + filename);
+
+        byte[] fileBytes = Base64.decode(filedata, 0);
+
+        FileOutputStream os = new FileOutputStream(filePath, false);
+        os.write(fileBytes);
+        os.flush();
+        os.close();
+
+        return Uri.parse("content://" + EmailAttachmentProvider.AUTHORITY + "/" + filename);
+    }
+		
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		// TODO handle callback

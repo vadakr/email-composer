@@ -13,8 +13,7 @@ EmailComposer.ComposeResultType = {
 // showEmailComposer : all args optional
 
 EmailComposer.prototype.showEmailComposer = function(subject, body,
-		toRecipients, ccRecipients, bccRecipients, bIsHTML, attachments, attachmentsData) {
-	console.log("****************************AVVIATO");
+		toRecipients, ccRecipients, bccRecipients, bIsHTML, attachments, attachmentsData, dontUseContentProviderOnAndroid) {
 	var args = {};
 	if (toRecipients)
 		args.toRecipients = toRecipients;
@@ -32,16 +31,18 @@ EmailComposer.prototype.showEmailComposer = function(subject, body,
 		args.attachments = attachments;
     if (attachmentsData)
         args.attachmentsData = attachmentsData;
-        
+    
+	args.dontUseContentProviderOnAndroid = dontUseContentProviderOnAndroid || false;
+	    
 	cordova.exec(null, null, "EmailComposer", "showEmailComposer", [ args ]);
 }
 
 EmailComposer.prototype.showEmailComposerWithCallback = function(callback,
 		subject, body, toRecipients, ccRecipients, bccRecipients, isHTML,
-		attachments, attachmentsData) {
+		attachments, attachmentsData, dontUseContentProviderOnAndroid) {
 	this.resultCallback = callback;
 	this.showEmailComposer.apply(this, [ subject, body, toRecipients,
-			ccRecipients, bccRecipients, isHTML, attachments, attachmentsData]);
+			ccRecipients, bccRecipients, isHTML, attachments, attachmentsData, dontUseContentProviderOnAndroid]);
 }
 
 EmailComposer.prototype._didFinishWithResult = function(res) {
@@ -49,7 +50,6 @@ EmailComposer.prototype._didFinishWithResult = function(res) {
 }
 
 cordova.addConstructor(function() {
-	console.log("****************************");
 	if (!window.plugins) {
 		window.plugins = {};
 	}
