@@ -188,7 +188,14 @@ public class EmailComposer extends CordovaPlugin {
                         Log.e("EmailComposer", "Error handling 'dontUseContentProviderOnAndroid' param: " + e.getMessage());
                     }
 
-                    Uri uri = getUri(filename, filedata, Boolean.valueOf(useContentProvider));
+					String folderName=null;
+                    try {
+                        folderName = parameters.getString("folderNameOnAndroid");
+                    } catch (Exception e) {
+                        Log.e("EmailComposer", "Error handling 'folderNameOnAndroid' param: " + e.getMessage());
+                    }
+
+                    Uri uri = getUri(filename, filedata, Boolean.valueOf(useContentProvider), folderName);
 					
 					uris.add(uri);
 				}
@@ -203,7 +210,8 @@ public class EmailComposer extends CordovaPlugin {
 		this.cordova.startActivityForResult(this, emailIntent, 0);
 	}
 	
-	private Uri getUri(String filename, String filedata, Boolean useContentProvider) throws FileNotFoundException, IOException{
+	private Uri getUri(String filename, String filedata, Boolean useContentProvider, String folderName)
+	            throws FileNotFoundException, IOException{
         if(!useContentProvider){
 			Log.d("EmailComposer", "Not using content provider");
             //some email clients (LG's mail app for eg. choke when they need to use a content provider
@@ -220,7 +228,7 @@ public class EmailComposer extends CordovaPlugin {
             }
             else{
                 Log.d("EmailComposer", "External storage is writeable");
-                return getFileUri(filename, filedata);
+                return getFileUri(filename, filedata, folderName);
             }
 
         }
@@ -230,20 +238,47 @@ public class EmailComposer extends CordovaPlugin {
         }
     }
 
-	private Uri getFileUri(String filename, String filedata) throws FileNotFoundException, IOException{
-	    String folderName = "EcoSys_Mobile";
+    //http://stackoverflow.com/a/26420820
+    private String sanitizeFileName(String givenFileName){
+        int[] illegalChars = {34, 60, 62, 124, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+                              18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 58, 42, 63, 92, 47};
+
+        Arrays.sort(illegalChars);
+
+        StringBuilder sanitizedName = new StringBuilder();
+        int len = givenFileName.codePointCount(0, givenFileName.length());
+        for (int i=0; i<len; i++) {
+          int c = givenFileName.codePointAt(i);
+          if (Arrays.binarySearch(illegalChars, c) < 0) {
+            sanitizedName.appendCodePoint(c);
+          }
+        }
+
+        return sanitizedName.toString();
+    }
+
+	private Uri getFileUri(String filename, String filedata, String folderName) throws FileNotFoundException, IOException{
+	    String FOLDERNAME = "com_ecosysmgmt_cordova_plugins_EmailComposer";
+
+	    if(folderName == null)
+	        folderName = FOLDERNAME;
+	    else if(folderName.isEmpty())
+	        folderName = FOLDERNAME;
+
+        folderName = sanitizeFileName(folderName);
 
 	    File filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
 	                              folderName);
 
-        //clean up a file if one of the same name exists, and create a folder instead
-        if(filePath.exists() && !filePath.isDirectory()){
-            filePath.delete();
+        if(filePath.isFile())
+            throw new RuntimeException("Could not create the folder '" + folderName + "' on external storage/Downloads." +
+                    " An existing file of the same name already exists");
+        else if(!filePath.isDirectory())
             filePath.mkdir();
-        }
-
 
         if (filePath.exists()) {
+            filename = sanitizeFileName(filename);
+
             filePath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) +
                                   "/" + folderName, filename);
 
@@ -256,14 +291,15 @@ public class EmailComposer extends CordovaPlugin {
 
             return Uri.fromFile(filePath);
         }
-        else{
-            Log.e("EmailComposer", "Could not create the directory " + folderName + " on external storage/Downloads");
-            throw new RuntimeException("Could not create the directory " + folderName + " on external storage/Downloads");
-        }
+        else
+            throw new RuntimeException("Could not create the folder '" + folderName + "' on external storage/Downloads");
+
 	}
 
 	private Uri getContentProviderUri(String filename, String filedata) throws FileNotFoundException, IOException{
-        File filePath = new File(this.cordova.getActivity().getCacheDir() + "/" + filename);
+	    filename = sanitizeFileName(filename);
+
+	    File filePath = new File(this.cordova.getActivity().getCacheDir() + "/" + filename);
 
         byte[] fileBytes = Base64.decode(filedata, 0);
 

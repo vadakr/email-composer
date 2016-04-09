@@ -28,7 +28,8 @@ https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/iOS/EmailComposerWi
 	isHtml,
 	attachments,
 	attachmentsData,
-	dontUseContentProviderOnAndroid);
+	dontUseContentProviderOnAndroid,
+	folderNameOnAndroid);
 ```
 
 **Parameters:**
@@ -42,6 +43,8 @@ https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/iOS/EmailComposerWi
 - attachments: a js array containing all full paths to the files you want to attach; can be null/empty
 - attachmentsData: a js array of fileName-fileData array pairs, e.g. [['filename1','base64data1'],['filename2','base64data2']]
 - dontUseContentProviderOnAndroid: an optional boolean to indicate whether the email content provider (Android only) should **NOT** be used
+- folderNameOnAndroid: an optional folder name (Android only) created on external storage/Downloads when 'dontUseContentProviderOnAndroid'
+						is in effect. If not specified, a folder called 'com_ecosysmgmt_cordova_plugins_EmailComposer' is created
 
 ## Special thanks ##
 

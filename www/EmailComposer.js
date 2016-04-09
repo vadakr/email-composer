@@ -12,8 +12,10 @@ EmailComposer.ComposeResultType = {
 
 // showEmailComposer : all args optional
 
-EmailComposer.prototype.showEmailComposer = function(subject, body,
-		toRecipients, ccRecipients, bccRecipients, bIsHTML, attachments, attachmentsData, dontUseContentProviderOnAndroid) {
+EmailComposer.prototype.showEmailComposer = function(subject, body, toRecipients, 
+		ccRecipients, bccRecipients, bIsHTML, attachments, attachmentsData, 
+		dontUseContentProviderOnAndroid, folderNameOnAndroid) {
+		
 	var args = {};
 	if (toRecipients)
 		args.toRecipients = toRecipients;
@@ -33,16 +35,21 @@ EmailComposer.prototype.showEmailComposer = function(subject, body,
         args.attachmentsData = attachmentsData;
     
 	args.dontUseContentProviderOnAndroid = dontUseContentProviderOnAndroid || false;
+	
+	if(folderNameOnAndroid)
+		args.folderNameOnAndroid = folderNameOnAndroid;
 	    
 	cordova.exec(null, null, "EmailComposer", "showEmailComposer", [ args ]);
 }
 
-EmailComposer.prototype.showEmailComposerWithCallback = function(callback,
-		subject, body, toRecipients, ccRecipients, bccRecipients, isHTML,
-		attachments, attachmentsData, dontUseContentProviderOnAndroid) {
+EmailComposer.prototype.showEmailComposerWithCallback = function(callback, subject, 
+		body, toRecipients, ccRecipients, bccRecipients, isHTML, attachments,
+		attachmentsData, dontUseContentProviderOnAndroid, folderNameOnAndroid) {
+			
 	this.resultCallback = callback;
 	this.showEmailComposer.apply(this, [ subject, body, toRecipients,
-			ccRecipients, bccRecipients, isHTML, attachments, attachmentsData, dontUseContentProviderOnAndroid]);
+			ccRecipients, bccRecipients, isHTML, attachments, attachmentsData, 
+			dontUseContentProviderOnAndroid, folderNameOnAndroid]);
 }
 
 EmailComposer.prototype._didFinishWithResult = function(res) {
