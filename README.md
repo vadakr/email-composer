@@ -18,7 +18,17 @@ https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/iOS/EmailComposerWi
 
 **Callable interface:**
 ```
-	window.plugins.emailComposer.showEmailComposerWithCallback(callback,subject,body,toRecipients,ccRecipients,bccRecipients,isHtml,attachments,attachmentsData);
+	window.plugins.emailComposer.showEmailComposerWithCallback(
+	callback,
+	subject,
+	body,
+	toRecipients,
+	ccRecipients,
+	bccRecipients,
+	isHtml,
+	attachments,
+	attachmentsData,
+	dontUseContentProviderOnAndroid);
 ```
 
 **Parameters:**
@@ -31,6 +41,7 @@ https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/iOS/EmailComposerWi
 - isHtml: a bool value indicating if the body is HTML or plain text
 - attachments: a js array containing all full paths to the files you want to attach; can be null/empty
 - attachmentsData: a js array of fileName-fileData array pairs, e.g. [['filename1','base64data1'],['filename2','base64data2']]
+- dontUseContentProviderOnAndroid: an optional boolean to indicate whether the email content provider (Android only) should **NOT** be used
 
 ## Special thanks ##
 

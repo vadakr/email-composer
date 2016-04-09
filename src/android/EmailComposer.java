@@ -10,9 +10,13 @@
  *
  * Jia Chang Jee 2013
  *
+ * Version 1.5
+ *
+ * Ranjit Vadakkan 2016
+ *
  */
 
-package com.jcjee.plugins;
+package com.ecosysmgmt.cordova.plugins;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +33,6 @@ import android.util.Base64;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.LOG;
 
 import android.util.Log;
 import android.os.Environment;
@@ -49,7 +52,7 @@ public class EmailComposer extends CordovaPlugin {
 					sendEmail(parameters);
 				}
 			} catch (Exception e) {
-				LOG.e("EmailComposer", "Unable to send email");
+				Log.e("EmailComposer", "Unable to send email " + e.getMessage());
 			}
 			callbackContext.success();
 			return true;
@@ -67,7 +70,7 @@ public class EmailComposer extends CordovaPlugin {
 		try {
 			isHTML = parameters.getBoolean("bIsHTML");
 		} catch (Exception e) {
-			LOG.e("EmailComposer", "Error handling isHTML param: " + e.toString());
+			Log.e("EmailComposer", "Error handling isHTML param: " + e.getMessage());
 		}
 
 		if (isHTML) {
@@ -83,7 +86,7 @@ public class EmailComposer extends CordovaPlugin {
 				emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
 			}
 		} catch (Exception e) {
-			LOG.e("EmailComposer", "Error handling subject param: " + e.toString());
+			Log.e("EmailComposer", "Error handling subject param: " + e.getMessage());
 		}
 
 		// setting body
@@ -97,7 +100,7 @@ public class EmailComposer extends CordovaPlugin {
 				}
 			}
 		} catch (Exception e) {
-			LOG.e("EmailComposer", "Error handling body param: " + e.toString());
+			Log.e("EmailComposer", "Error handling body param: " + e.getMessage());
 		}
 
 		// setting TO recipients
@@ -111,7 +114,7 @@ public class EmailComposer extends CordovaPlugin {
 				emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, to);
 			}
 		} catch (Exception e) {
-			LOG.e("EmailComposer", "Error handling toRecipients param: " + e.toString());
+			Log.e("EmailComposer", "Error handling toRecipients param: " + e.getMessage());
 		}
 
 		// setting CC recipients
@@ -125,7 +128,7 @@ public class EmailComposer extends CordovaPlugin {
 				emailIntent.putExtra(android.content.Intent.EXTRA_CC, cc);
 			}
 		} catch (Exception e) {
-			LOG.e("EmailComposer", "Error handling ccRecipients param: " + e.toString());
+			Log.e("EmailComposer", "Error handling ccRecipients param: " + e.getMessage());
 		}
 
 		// setting BCC recipients
@@ -139,7 +142,7 @@ public class EmailComposer extends CordovaPlugin {
 				emailIntent.putExtra(android.content.Intent.EXTRA_BCC, bcc);
 			}
 		} catch (Exception e) {
-			LOG.e("EmailComposer", "Error handling bccRecipients param: " + e.toString());
+			Log.e("EmailComposer", "Error handling bccRecipients param: " + e.getMessage());
 		}
 
 		// setting attachments
@@ -156,7 +159,7 @@ public class EmailComposer extends CordovaPlugin {
 							uris.add(uri);
 						}
 					} catch (Exception e) {
-						LOG.e("EmailComposer", "Error adding an attachment: " + e.toString());
+						Log.e("EmailComposer", "Error adding an attachment: " + e.getMessage());
 					}
 				}
 				if (uris.size() > 0) {
@@ -164,7 +167,7 @@ public class EmailComposer extends CordovaPlugin {
 				}
 			}
 		} catch (Exception e) {
-			LOG.e("EmailComposer", "Error handling attachments param: " + e.toString());
+			Log.e("EmailComposer", "Error handling attachments param: " + e.getMessage());
 		}
 
 		// setting attachments data
@@ -182,7 +185,7 @@ public class EmailComposer extends CordovaPlugin {
                     try {
                         useContentProvider = !parameters.getBoolean("dontUseContentProviderOnAndroid");
                     } catch (Exception e) {
-                        Log.e("EmailComposer", "Error handling 'dontUseContentProviderOnAndroid' param: " + e.toString());
+                        Log.e("EmailComposer", "Error handling 'dontUseContentProviderOnAndroid' param: " + e.getMessage());
                     }
 
                     Uri uri = getUri(filename, filedata, Boolean.valueOf(useContentProvider));
@@ -194,7 +197,7 @@ public class EmailComposer extends CordovaPlugin {
 				}
 			}
 		} catch (Exception e) {
-			LOG.e("EmailComposer", "Error handling attachmentsData param: " + e.toString());
+			Log.e("EmailComposer", "Error handling attachmentsData param: " + e.getMessage());
 		}
 		
 		this.cordova.startActivityForResult(this, emailIntent, 0);
@@ -202,6 +205,7 @@ public class EmailComposer extends CordovaPlugin {
 	
 	private Uri getUri(String filename, String filedata, Boolean useContentProvider) throws FileNotFoundException, IOException{
         if(!useContentProvider){
+			Log.d("EmailComposer", "Not using content provider");
             //some email clients (LG's mail app for eg. choke when they need to use a content provider
             //in such cases, we can use the filesystem to transfer data
 
@@ -221,6 +225,7 @@ public class EmailComposer extends CordovaPlugin {
 
         }
         else{
+			Log.d("EmailComposer", "Using content provider");
             return getContentProviderUri(filename, filedata);
         }
     }
@@ -274,7 +279,7 @@ public class EmailComposer extends CordovaPlugin {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		// TODO handle callback
 		super.onActivityResult(requestCode, resultCode, intent);
-		LOG.e("EmailComposer", "ResultCode: " + resultCode);
+		Log.e("EmailComposer", "ResultCode: " + resultCode);
 		// IT DOESN'T SEEM TO HANDLE RESULT CODES
 	}
 
