@@ -1,54 +1,31 @@
 # Email Composer with Attachments Plugin #
 
-Email Composer with Attachments allows for sending of emails with attachments. Modified from the original Phonegap plugin to accept attachment data directly from JavaScript, encoded in Base64.
+Forked from jcjee/email-composer (Thank you!)
 
-The original source + commit history is no longer maintained.
-You can find it here:
+This fork addresses Android specific bugs that prevented one from using base64 attachments (see the attachmentData parameter)
 
-https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/iPhone/EmailComposer
-
-and here :
-
-https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/iOS/EmailComposer
-
-and here :
-
-https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/iOS/EmailComposerWithAttachments
+It also adds 2 new parameters to the existing interface - 
+1. dontUseContentProviderOnAndroid
+2. folderNameOnAndroid.
 
 
 **Callable interface:**
 ```
 	window.plugins.emailComposer.showEmailComposerWithCallback(
-	callback,
-	subject,
-	body,
-	toRecipients,
-	ccRecipients,
-	bccRecipients,
-	isHtml,
-	attachments,
-	attachmentsData,
-	dontUseContentProviderOnAndroid,
-	folderNameOnAndroid);
+		callback, //a js function that will receive return parameter from the plugin
+		subject, //a string representing the subject of the email; can be null
+		body, //a string representing the email body (could be HTML code, in this case set **isHtml** to **true**); can be null
+		toRecipients, //a js array containing all the email addresses for TO field; can be null/empty
+		ccRecipients, //a js array containing all the email addresses for CC field; can be null/empty
+		bccRecipients, //a js array containing all the email addresses for BCC field; can be null/empty
+		isHtml, //a bool value indicating if the body is HTML or plain text
+		attachments, //a js array containing all full paths to the files you want to attach; can be null/empty
+		attachmentsData, //a js array of fileName-fileData array pairs, e.g. [['filename1','base64data1'],['filename2','base64data2']]
+		dontUseContentProviderOnAndroid, //an optional boolean to indicate whether the email content provider (Android only) should **NOT** be used
+		folderNameOnAndroid //an optional folder name (Android only) created on external storage/Downloads when 'dontUseContentProviderOnAndroid'
+	);						//is in effect. If not specified, a folder called 'com_ecosysmgmt_cordova_plugins_EmailComposer' is created
 ```
 
-**Parameters:**
-- callback: a js function that will receive return parameter from the plugin
-- subject: a string representing the subject of the email; can be null
-- body: a string representing the email body (could be HTML code, in this case set **isHtml** to **true**); can be null
-- toRecipients: a js array containing all the email addresses for TO field; can be null/empty
-- ccRecipients: a js array containing all the email addresses for CC field; can be null/empty
-- bccRecipients: a js array containing all the email addresses for BCC field; can be null/empty
-- isHtml: a bool value indicating if the body is HTML or plain text
-- attachments: a js array containing all full paths to the files you want to attach; can be null/empty
-- attachmentsData: a js array of fileName-fileData array pairs, e.g. [['filename1','base64data1'],['filename2','base64data2']]
-- dontUseContentProviderOnAndroid: an optional boolean to indicate whether the email content provider (Android only) should **NOT** be used
-- folderNameOnAndroid: an optional folder name (Android only) created on external storage/Downloads when 'dontUseContentProviderOnAndroid'
-						is in effect. If not specified, a folder called 'com_ecosysmgmt_cordova_plugins_EmailComposer' is created
-
-## Special thanks ##
-
-I would like to say thanks to Guido Sabatini (https://github.com/phonegap/phonegap-plugins/blob/master/iOS/EmailComposerWithAttachments/) for the code we have (re)used and added extra functionalities to.
 
 ## License ##
 
