@@ -1,0 +1,32 @@
+{
+  "name": "com.ecosysmgmt.cordova.plugins.emailcomposer",
+  "version": "1.0.0",
+  "description": "Send emails with attachments encoded in Base64",
+  "cordova": {
+    "id": "com.ecosysmgmt.cordova.plugins.emailcomposer",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vadakr/email-composer.git"
+  },
+  "keywords": [
+    "email",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=5.4.1"
+    }
+  ],
+  "author": "Ranjit Vadakkan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vadakr/email-composer/issues"
+  },
+  "homepage": "https://github.com/vadakr/email-composer#readme"
+}
